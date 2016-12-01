@@ -85,6 +85,61 @@ public class Board extends JFrame {
     }
 
     /**
+     * Runs through the process of the user left-clicking on a tile. If the tile
+     * is flagged or has already been revealed, nothing occurs.
+     * 
+     * @param sq
+     *            the square the user clicked on
+     */
+    public void leftClickSquare(Square sq) {
+        if (!sq.isFlagged && !sq.isRevealed) {
+            // Case when the square is a mine, and the user has lost:
+            if (sq.isMine) {
+                this.endGame(false);
+            }
+
+            // Case when the square is not a mine, and becomes revealed:
+            else {
+                this.reveal(sq);
+
+                // If the square has no adjacent mines, reveals all adjacent
+                // squares.
+                if (sq.numAdjacent == 0) {
+                    for (Square adjacent : this.getAdjacent(sq)) {
+                        this.reveal(adjacent);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Reveals the given square if it is not flagged and *does graphical stuff*
+     * associated with revealing it.
+     * 
+     * @param sq
+     *            the square to reveal
+     */
+    private void reveal(Square sq) {
+        if (!sq.isRevealed) {
+            sq.isRevealed = true;
+
+            // Do more graphical stuff
+
+        }
+    }
+
+    /**
+     * Runs the end of the game process. Behavior depends on if the user won.
+     * 
+     * @param wasGameWon
+     *            true if the user won the game, false if the user lost
+     */
+    private void endGame(boolean wasGameWon) {
+        // Do stuff
+    }
+
+    /**
      * Currently returns a grid composed of "X" and "O" representing mines and
      * non-mines respectively.
      * 
