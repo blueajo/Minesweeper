@@ -114,6 +114,17 @@ public class Board extends JFrame {
     }
 
     /**
+     * Flags the square that the user right clicks on. Does nothing if the user right clicks on an already revealed square.
+     * @param sq the square that the user right clicked
+     */
+    public void rightClickSquare(Square sq) {
+        if (!sq.isRevealed) {
+            // change the flagged status of the square
+            // change the icon showed
+        }
+    }
+
+    /**
      * Reveals the given square if it is not flagged and *does graphical stuff*
      * associated with revealing it.
      * 
