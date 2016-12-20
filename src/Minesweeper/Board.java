@@ -19,7 +19,7 @@ import javax.swing.JFrame;
 public class Board extends JFrame implements ActionListener {
 
     private static final long serialVersionUID = 1L;
-    private static final int buttonSize = 100;
+    private static final int buttonSize = 50;
 
     private Square[][] grid;
     private int numMines;
