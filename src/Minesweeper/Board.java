@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -101,7 +102,9 @@ public class Board extends JFrame implements ActionListener {
         
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
-                mineOrder.add(this.grid[row][col]);
+            	if(!(clicked.row == row) && !(clicked.col == col)) {
+            		mineOrder.add(this.grid[row][col]);
+            	}
             }
         }
     	
@@ -111,11 +114,6 @@ public class Board extends JFrame implements ActionListener {
         // Sets the first numMines Squares to be mines.
         for (int i = 0; i < numMines; i++) {
             mineOrder.get(i).isMine = true;
-        }
-
-        // Sets the rest of the squares to be safe.
-        for (int i = numMines; i < size * size; i++) {
-            mineOrder.get(i).isMine = false;
         }
 
         // Sets the number of adjacent mines for each square.
@@ -134,11 +132,42 @@ public class Board extends JFrame implements ActionListener {
             }
         }
         
+        this.reveal(clicked);
+        this.recurseReveal(clicked);
+        
         // for testing purposes
         System.out.println(this);
     }
     
-    /**
+    public void recurseReveal(Square clicked) {
+    	List<Square> squares = this.getAdjacent(clicked);
+    	for(Square square : squares) {
+			if(square.isMine) {
+				return;
+			}
+		}
+    	recurseRevealHelper(clicked, this.getAdjacent(clicked));
+	}
+    
+    private void recurseRevealHelper(Square clicked, List<Square> adjSquares) {
+    	
+		for(Square square : adjSquares) {
+			this.reveal(square);
+			boolean recurseAgain = true;
+			List<Square> squares = this.getAdjacent(square);
+	    	for(Square squareTwo : squares) {
+				if(squareTwo.isMine) {
+					recurseAgain = false;
+					break;
+				}
+			}
+			if(recurseAgain) {
+				recurseRevealHelper(square, squares);
+			}
+		}
+    }
+
+	/**
      * Runs through the process of the user left-clicking on a tile. If the tile
      * is flagged or has already been revealed, nothing occurs.
      * 
@@ -164,6 +193,8 @@ public class Board extends JFrame implements ActionListener {
                     }
                 }
             }
+        } else if (sq.isRevealed) {
+        	// recursively reveal
         }
     }
 
