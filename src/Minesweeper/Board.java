@@ -131,7 +131,6 @@ public class Board extends JFrame implements MouseListener {
      * 
      * @param clicked
      */
-<<<<<<< HEAD
     private void firstClick(Square clicked) { 
         ArrayList<Square> mineOrder = new ArrayList<Square>();
         int size = this.grid.length;
@@ -156,7 +155,7 @@ public class Board extends JFrame implements MouseListener {
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 if (this.grid[row][col].isMine) {
-                    ArrayList<Square> adjacent = this
+                    List<Square> adjacent = this
                             .getAdjacent(this.grid[row][col]);
 
                     for (Square adjSquare : adjacent) {
@@ -203,52 +202,9 @@ public class Board extends JFrame implements MouseListener {
 		}
     }
 
-	/**
-=======
-    private void firstClick(Square clicked) {
-	ArrayList<Square> mineOrder = new ArrayList<Square>();
-	int size = this.grid.length;
-
-	for (int row = 0; row < size; row++) {
-	    for (int col = 0; col < size; col++) {
-		mineOrder.add(this.grid[row][col]);
-	    }
-	}
-
-	// Randomizes the order of the squares to select mines from.
-	Collections.shuffle(mineOrder);
-
-	// Sets the first numMines Squares to be mines.
-	for (int i = 0; i < numMines; i++) {
-	    mineOrder.get(i).isMine = true;
-	}
-
-	// Sets the rest of the squares to be safe.
-	for (int i = numMines; i < size * size; i++) {
-	    mineOrder.get(i).isMine = false;
-	}
-
-	// Sets the number of adjacent mines for each square.
-	for (int row = 0; row < size; row++) {
-	    for (int col = 0; col < size; col++) {
-		if (this.grid[row][col].isMine) {
-		    List<Square> adjacent = this.getAdjacent(this.grid[row][col]);
-
-		    for (Square adjSquare : adjacent) {
-			if (!adjSquare.isMine) {
-			    adjSquare.numAdjacent++;
-			}
-		    }
-		}
-	    }
-	}
-
-	// for testing purposes
-	System.out.println(this);
-    }
+    
 
     /**
->>>>>>> origin/master
      * Runs through the process of the user left-clicking on a tile. If the tile
      * is flagged or has already been revealed, nothing occurs.
      * 
@@ -256,7 +212,6 @@ public class Board extends JFrame implements MouseListener {
      *            the square the user clicked on
      */
     public void leftClickSquare(Square sq) {
-<<<<<<< HEAD
         if (!sq.isFlagged && !sq.isRevealed) {
             // Case when the square is a mine, and the user has lost:
             if (sq.isMine) {
@@ -278,7 +233,7 @@ public class Board extends JFrame implements MouseListener {
         } else if (sq.isRevealed) {
         	// recursively reveal
         }
-=======
+
 	if (!sq.isFlagged && !sq.isRevealed) {
 	    // Case when the square is a mine, and the user has lost:
 	    if (sq.isMine) {
@@ -298,7 +253,6 @@ public class Board extends JFrame implements MouseListener {
 		}
 	    }
 	}
->>>>>>> origin/master
     }
 
     /**
