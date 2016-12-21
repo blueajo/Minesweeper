@@ -100,7 +100,7 @@ public class Board extends JFrame implements MouseListener {
 	List<Square> sqAndAdjacent = new ArrayList<Square>();
 	sqAndAdjacent = this.getAdjacent(sq);
 	sqAndAdjacent.add(sq);
-	
+
 	for (Square safeSq : sqAndAdjacent) {
 	    safeSq.isMine = false;
 	}
@@ -159,7 +159,15 @@ public class Board extends JFrame implements MouseListener {
      */
     private void reveal(Square sq) {
 	if (!sq.isFlagged && !sq.isRevealed) {
+	    // If the square is a mine, then the user loses.
+	    if (sq.isMine) {
+		this.endGame(false);
+		return;
+	    }
+
 	    sq.isRevealed = true;
+	    this.numSafeRevealed++;
+
 	    sq.setBackground(Color.CYAN);
 
 	    String text;
@@ -171,7 +179,14 @@ public class Board extends JFrame implements MouseListener {
 
 	    sq.setText(text);
 
-	    if (sq.numAdjacent == 0) {
+	    // If the user has revealed every safe square, then the user wins.
+	    if (this.numSafeRevealed == this.numSafe) {
+		this.endGame(true);
+	    }
+
+	    // If the square had 0 adjacent mines, reveals every adjacent
+	    // square.
+	    else if (sq.numAdjacent == 0) {
 		this.reveal(this.getAdjacent(sq));
 	    }
 	}
