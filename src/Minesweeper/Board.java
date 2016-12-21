@@ -338,6 +338,26 @@ public class Board extends JFrame implements MouseListener {
 
     @Override
     public void mouseClicked(java.awt.event.MouseEvent e) {
+	// TODO Auto-generated method stub
+    }
+
+    @Override
+    public void mouseEntered(java.awt.event.MouseEvent e) {
+	// TODO Auto-generated method stub
+    }
+
+    @Override
+    public void mouseExited(java.awt.event.MouseEvent e) {
+	// TODO Auto-generated method stub
+    }
+
+    @Override
+    public void mousePressed(java.awt.event.MouseEvent e) {
+	// TODO Auto-generated method stub
+    }
+
+    @Override
+    public void mouseReleased(java.awt.event.MouseEvent e) {
 	int clickType = e.getButton();
 
 	int col = e.getX() / this.buttonSize;
@@ -354,39 +374,10 @@ public class Board extends JFrame implements MouseListener {
 	    System.out.println("Right click");
 	    this.rightClickSquare(sq);
 	}
-
-    }
-
-    @Override
-    public void mouseEntered(java.awt.event.MouseEvent e) {
-	// TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void mouseExited(java.awt.event.MouseEvent e) {
-	// TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void mousePressed(java.awt.event.MouseEvent e) {
-	// TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void mouseReleased(java.awt.event.MouseEvent e) {
-	// TODO Auto-generated method stub
-
     }
 
     /**
-     * 
-     * @author blueajo
-     *
-     *         This class is a square on a minesweeper board.
-     *
+     * This class represents a single square on a minesweeper board.
      */
     private static class Square extends JLabel {
 
