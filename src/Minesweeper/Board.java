@@ -60,6 +60,7 @@ public class Board extends JFrame implements MouseListener {
 	this.setTitle("Minesweeper");
 	this.setMinimumSize(new Dimension(size * buttonSize, size * buttonSize));
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+	this.setResizable(false);
 
 	this.grid = new Square[size][size];
 
