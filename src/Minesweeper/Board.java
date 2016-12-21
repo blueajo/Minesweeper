@@ -376,6 +376,7 @@ public class Board extends JFrame implements MouseListener {
 
 	else if (clickType == 2) {
 	    System.out.println("Right click");
+	    sq.setText("1");
 	    this.rightClickSquare(sq);
 	}
     }
