@@ -21,7 +21,7 @@ import java.awt.*;
 public class Board extends JFrame implements MouseListener {
 
     private static final long serialVersionUID = 1L;
-    private static final int buttonSize = 50;
+    private static final int minButtonSize = 50;
 
     private Square[][] grid;
     private int numMines, numMinesFlagged;
@@ -49,7 +49,7 @@ public class Board extends JFrame implements MouseListener {
 	this.initialized = false;
 
 	this.setTitle("Minesweeper");
-	this.setMinimumSize(new Dimension(size * buttonSize, size * buttonSize));
+	this.setMinimumSize(new Dimension(size * minButtonSize, size * minButtonSize));
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 	this.grid = new Square[size][size];
