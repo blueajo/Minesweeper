@@ -70,6 +70,8 @@ public class Board extends JFrame implements MouseListener {
 	this.addMouseListener(this);
 
 	this.setVisible(true);
+	
+	this.pack();
     }
 
 
@@ -359,10 +361,11 @@ public class Board extends JFrame implements MouseListener {
     @Override
     public void mouseReleased(java.awt.event.MouseEvent e) {
 	int clickType = e.getButton();
-
-	int col = e.getX() / buttonSize;
 	
-	int row = e.getY() / buttonSize;
+	Dimension size = this.getContentPane().getSize();
+	
+	int col = e.getX() / size.width;
+	int row = e.getY() / size.height;
 
 	Square sq = this.grid[row][col];
 
