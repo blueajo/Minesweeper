@@ -1,15 +1,15 @@
 package Minesweeper;
 
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.GroupLayout;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import java.awt.GridLayout;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * 
@@ -360,8 +360,9 @@ public class Board extends JFrame implements MouseListener {
     public void mouseReleased(java.awt.event.MouseEvent e) {
 	int clickType = e.getButton();
 
-	int col = e.getX() / this.buttonSize;
-	int row = e.getY() / this.buttonSize;
+	int col = e.getX() / buttonSize;
+	
+	int row = e.getY() / buttonSize;
 
 	Square sq = this.grid[row][col];
 
@@ -402,12 +403,17 @@ public class Board extends JFrame implements MouseListener {
 	 *            the row of the square
 	 */
 	public Square(int row, int col) {
-	    super("0");
+	    super("0", CENTER);
+	    
 	    this.isRevealed = false;
 	    this.isFlagged = false;
 	    this.col = col;
 	    this.row = row;
 	    this.numAdjacent = 0;
+
+	    this.setOpaque(true);
+	    this.setBackground(Color.WHITE);
+	    this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 	}
 
 	/**
