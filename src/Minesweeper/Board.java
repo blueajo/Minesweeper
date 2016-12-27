@@ -137,6 +137,7 @@ public class Board extends JFrame implements MouseListener {
 			}
 		}
 
+		System.out.println(this);
 		this.reveal(sq);
 	}
 
@@ -214,31 +215,11 @@ public class Board extends JFrame implements MouseListener {
 				// If the square has no adjacent mines, reveals all adjacent
 				// squares.
 				if (sq.numAdjacent == 0) {
-					for (Square adjacent : this.getAdjacent(sq)) {
-						this.reveal(adjacent);
-					}
+					this.reveal(this.getAdjacent(sq));
 				}
 			}
 		} else if (sq.isRevealed) {
 			this.reveal(this.getAdjacent(sq));
-		}
-
-		if (!sq.isFlagged && !sq.isRevealed) {
-			// Case when the square is a mine, and the user has lost:
-			if (sq.isMine) {
-				this.endGame(false);
-			}
-
-			// Case when the square is not a mine, and becomes revealed:
-			else {
-				this.reveal(sq);
-
-				// If the square has no adjacent mines, reveals all adjacent
-				// squares.
-				if (sq.numAdjacent == 0) {
-					this.reveal(this.getAdjacent(sq));
-				}
-			}
 		}
 	}
 
@@ -317,9 +298,9 @@ public class Board extends JFrame implements MouseListener {
 	private List<Square> getAdjacent(Square sq) {
 		List<Square> adjacent = new ArrayList<Square>();
 
-		for (int i = sq.col - 1; i <= sq.col + 1; i++) {
-			for (int j = sq.row - 1; j <= sq.row + 1; j++) {
-				if (!(i == sq.col && j == sq.row) && isInBounds(i, j)) {
+		for (int i = sq.row - 1; i <= sq.row + 1; i++) {
+			for (int j = sq.col - 1; j <= sq.col + 1; j++) {
+				if (!(i == sq.row && j == sq.col) && isInBounds(i, j)) {
 					adjacent.add(this.grid[i][j]);
 				}
 			}
