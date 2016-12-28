@@ -1,16 +1,11 @@
 package Minesweeper;
 
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,7 +14,8 @@ import java.awt.*;
  * 
  * @author blueajo
  *
- *         This class is a Minesweeper Board
+ *         This class is a Minesweeper Board.
+ *         When instantiated, it generates a game of minesweeper
  *
  */
 public class Board extends JFrame implements MouseListener {
@@ -28,47 +24,56 @@ public class Board extends JFrame implements MouseListener {
 	private static final int buttonSize = 75;
 
 	private Square[][] grid;
+	private int rows, cols;
 	private int numMines, numMinesFlagged;
 	private int numSafe, numSafeRevealed;
 	private boolean isFirstClick;
+	private boolean gameOver;
 
 	/**
 	 * Constructs a square minesweeper board with length and width equal to
 	 * size, and a numMines number of mines.
 	 * 
-	 * @param size
-	 *            the length and width of the board
+	 * @param rows
+	 *            the number of rows in the board
+	 * @param cols
+	 * 			  the number of columns in the board
 	 * @param numMines
 	 *            the number of mines to initialize
 	 * @throws IllegalArgumentException
 	 *             if the number of mines is greater than the number of squares
 	 */
-	public Board(int size, int numMines) {
+	public Board(int rows, int cols, int numMines) {
 
-		if (numMines > size * size) {
+		if (numMines > rows * cols) { // shit this needs to be fixed  to accommodate the array of safe squares
 			throw new IllegalArgumentException("There cannot be more mines than squares.");
 		}
 
+		this.rows = rows;
+		this.cols = cols;
+		
 		this.numMines = numMines;
 		this.numMinesFlagged = 0;
 
-		this.numSafe = this.numMines - (size * size);
+		this.numSafe = (rows * cols) - this.numMines;
 		this.numSafeRevealed = 0;
 
 		this.isFirstClick = true;
+		
+		this.gameOver = false;
 
 		this.setTitle("Minesweeper");
-		this.setMinimumSize(new Dimension(size * buttonSize, size * buttonSize));
+		this.setMinimumSize(new Dimension(rows * buttonSize, cols * buttonSize));
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setResizable(false);
 
-		this.grid = new Square[size][size];
+		this.grid = new Square[rows][cols];
 
-		setLayout(new GridLayout(size, size));
+		setLayout(new GridLayout(rows, cols));
 
 		// Initializes the squares within the array.
-		for (int row = 0; row < size; row++) {
-			for (int col = 0; col < size; col++) {
+		for (int row = 0; row < rows; row++) {
+			for (int col = 0; col < cols; col++) {
 				// Initially, squares are declared not to be mines.
 				Square current = new Square(row, col);
 				this.grid[row][col] = current;
@@ -95,19 +100,14 @@ public class Board extends JFrame implements MouseListener {
 		this.isFirstClick = false;
 
 		List<Square> mineOrder = new ArrayList<Square>();
-		int size = this.grid.length;
 
 		// Creates a list of squares guaranteed to not be mines.
 		List<Square> sqAndAdjacent = new ArrayList<Square>();
 		sqAndAdjacent = this.getAdjacent(sq);
 		sqAndAdjacent.add(sq);
 
-		for (Square safeSq : sqAndAdjacent) {
-			safeSq.isMine = false;
-		}
-
-		for (int row = 0; row < size; row++) {
-			for (int col = 0; col < size; col++) {
+		for (int row = 0; row < this.rows; row++) {
+			for (int col = 0; col < this.cols; col++) {
 				if (!sqAndAdjacent.contains(this.grid[row][col])) {
 					mineOrder.add(this.grid[row][col]);
 				}
@@ -118,13 +118,13 @@ public class Board extends JFrame implements MouseListener {
 		Collections.shuffle(mineOrder);
 
 		// Sets the first numMines Squares to be mines.
-		for (int i = 0; i < numMines; i++) {
+		for (int i = 0; i < this.numMines; i++) {
 			mineOrder.get(i).isMine = true;
 		}
 
 		// Sets the number of adjacent mines for each square.
-		for (int row = 0; row < size; row++) {
-			for (int col = 0; col < size; col++) {
+		for (int row = 0; row < this.rows; row++) {
+			for (int col = 0; col < this.cols; col++) {
 				if (this.grid[row][col].isMine) {
 					List<Square> adjacent = this.getAdjacent(this.grid[row][col]);
 
@@ -161,37 +161,58 @@ public class Board extends JFrame implements MouseListener {
 	 */
 	private void reveal(Square sq) {
 		if (!sq.isFlagged && !sq.isRevealed) {
+			fillSquare(sq);
+			
 			// If the square is a mine, then the user loses.
 			if (sq.isMine) {
+				sq.setBackground(Color.RED);
 				this.endGame(false);
-				return;
+				
+			} else {
+				sq.isRevealed = true;
+				this.numSafeRevealed++;
+
+				// If the user has revealed every safe square, then the user wins.
+				if (this.numSafeRevealed == this.numSafe) {
+					this.endGame(true);
+				}
+
+				// If the square had 0 adjacent mines, reveals every adjacent
+				// square.
+				else if (sq.numAdjacent == 0) {
+					this.reveal(this.getAdjacent(sq));
+				}
 			}
-
-			sq.isRevealed = true;
-			this.numSafeRevealed++;
-
+		}
+	}
+	
+	/**
+	 * Fills the square, revealing whether it was a mine, it was clicked,
+	 * or how many mines were adjacent to it.
+	 * 
+	 * @param sq
+	 * 			the square to be filled
+	 */
+	private void fillSquare(Square sq) {
+		String text;
+		if (sq.isMine) {
+			if(!sq.getBackground().equals(Color.RED)) {
+				sq.setBackground(Color.GRAY);
+			}
+			text = "";
+		} else if(!sq.isMine && sq.isFlagged) {
+			sq.setBackground(Color.CYAN);
+			text = "X";
+		} else {
 			sq.setBackground(Color.CYAN);
 
-			String text;
 			if (sq.numAdjacent > 0) {
 				text = String.valueOf(sq.numAdjacent);
 			} else {
 				text = "";
 			}
-
-			sq.setText(text);
-
-			// If the user has revealed every safe square, then the user wins.
-			if (this.numSafeRevealed == this.numSafe) {
-				this.endGame(true);
-			}
-
-			// If the square had 0 adjacent mines, reveals every adjacent
-			// square.
-			else if (sq.numAdjacent == 0) {
-				this.reveal(this.getAdjacent(sq));
-			}
 		}
+		sq.setText(text);
 	}
 
 	/**
@@ -203,22 +224,18 @@ public class Board extends JFrame implements MouseListener {
 	 */
 	public void leftClickSquare(Square sq) {
 		if (!sq.isFlagged && !sq.isRevealed) {
-			// Case when the square is a mine, and the user has lost:
+			this.reveal(sq);
+			
 			if (sq.isMine) {
 				this.endGame(false);
-			}
-
-			// Case when the square is not a mine, and becomes revealed:
-			else {
-				this.reveal(sq);
-
+			} else {
 				// If the square has no adjacent mines, reveals all adjacent
 				// squares.
 				if (sq.numAdjacent == 0) {
 					this.reveal(this.getAdjacent(sq));
 				}
 			}
-		} else if (sq.isRevealed) {
+		} else if (sq.isRevealed && sq.numAdjacent == this.numAdjacentFlagged(sq)) {
 			this.reveal(this.getAdjacent(sq));
 		}
 	}
@@ -253,7 +270,23 @@ public class Board extends JFrame implements MouseListener {
 	 *            true if the user won the game, false if the user lost
 	 */
 	private void endGame(boolean wasGameWon) {
-		// TODO
+		if(!this.gameOver) {
+			this.gameOver = true;
+			
+			for (int row = 0; row < this.rows; row++) {
+				for (int col = 0; col < this.cols; col++) {
+					if(!this.grid[row][col].isRevealed){
+						fillSquare(this.grid[row][col]);
+					}
+				}
+			}
+			
+			if(wasGameWon) {
+				System.out.println("YOU WON!");
+			} else {
+				System.out.println("YOU LOSE");
+			}
+		}
 	}
 
 	/**
@@ -266,8 +299,8 @@ public class Board extends JFrame implements MouseListener {
 	public String toString() {
 		String output = "Mine layout:\n";
 
-		for (int row = 0; row < grid.length; row++) {
-			for (int col = 0; col < grid.length; col++) {
+		for (int row = 0; row < this.rows; row++) {
+			for (int col = 0; col < this.cols; col++) {
 				output += grid[row][col].toString();
 				output += " ";
 			}
@@ -276,8 +309,8 @@ public class Board extends JFrame implements MouseListener {
 
 		output += "\nAdjacent mines:\n";
 
-		for (int row = 0; row < grid.length; row++) {
-			for (int col = 0; col < grid.length; col++) {
+		for (int row = 0; row < this.rows; row++) {
+			for (int col = 0; col < this.cols; col++) {
 				output += this.grid[row][col].numAdjacent;
 				output += " ";
 			}
@@ -339,7 +372,7 @@ public class Board extends JFrame implements MouseListener {
 	 * @return true if the square is in the grid, false otherwise
 	 */
 	private boolean isInBounds(int row, int col) {
-		return (row >= 0) && (row < this.grid.length) && (col >= 0) && (col < this.grid.length);
+		return (row >= 0) && (row < this.rows) && (col >= 0) && (col < this.cols);
 	}
 
 	@Override
@@ -351,7 +384,7 @@ public class Board extends JFrame implements MouseListener {
 	public void mousePressed(MouseEvent e) {
 
 		Object clickLocation = e.getSource();
-		if (clickLocation instanceof Square) {
+		if (clickLocation instanceof Square && !gameOver) {
 			Square sq = (Square) e.getSource();
 
 			if (sq.isRevealed) {
@@ -365,29 +398,32 @@ public class Board extends JFrame implements MouseListener {
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		int clickType = e.getButton();
+		Object clickLocation = e.getSource();
 
-		Square sq = (Square) e.getSource();
+		if (clickLocation instanceof Square && !gameOver) {
+			Square sq = (Square) e.getSource();
 
-		if (sq.isRevealed) {
-			sq.setBackground(Color.CYAN);
-		} else {
-			sq.setBackground(Color.LIGHT_GRAY);
-		}
-
-		// Left click:
-		if (clickType == 1) {
-			if (this.isFirstClick) {
-				this.firstClick(sq);
+			if (sq.isRevealed) {
+				sq.setBackground(Color.CYAN);
+			} else {
+				sq.setBackground(Color.LIGHT_GRAY);
 			}
 
-			else {
-				this.leftClickSquare(sq);
-			}
-		}
+			// Left click:
+			if (clickType == 1) {
+				if (this.isFirstClick) {
+					this.firstClick(sq);
+				}
 
-		// Right click:
-		else if (clickType == 3) {
-			this.rightClickSquare(sq);
+				else {
+					this.leftClickSquare(sq);
+				}
+			}
+
+			// Right click:
+			else if (clickType == 3) {
+				this.rightClickSquare(sq);
+			}
 		}
 	}
 
