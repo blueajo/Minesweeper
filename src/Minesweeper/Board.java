@@ -1,4 +1,4 @@
-package Minesweeper;
+package minesweeper;
 
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
@@ -18,7 +18,7 @@ import java.awt.*;
  *         When instantiated, it generates a game of minesweeper
  *
  */
-public class Board extends JFrame implements MouseListener {
+public class Board extends JComponent implements MouseListener {
 
 	private static final long serialVersionUID = 1L;
 	private static final int buttonSize = 75;
@@ -41,12 +41,17 @@ public class Board extends JFrame implements MouseListener {
 	 * @param numMines
 	 *            the number of mines to initialize
 	 * @throws IllegalArgumentException
-	 *             if the number of mines is greater than the number of squares
+	 *             for invalid numbers of mines, rows, and columns
 	 */
 	public Board(int rows, int cols, int numMines) {
 
-		if (numMines > rows * cols) { // shit this needs to be fixed  to accommodate the array of safe squares
-			throw new IllegalArgumentException("There cannot be more mines than squares.");
+		if(rows < 3 || cols < 3) {
+			throw new IllegalArgumentException("rows and cols must be at least 3");
+		}
+		
+		if (numMines > rows * cols - 9 || numMines < 0) {
+			throw new IllegalArgumentException("For a " + rows + "x" + cols +
+					" board, there must be fewer than " + (rows * cols - 9) + "squares");
 		}
 
 		this.rows = rows;
@@ -62,10 +67,7 @@ public class Board extends JFrame implements MouseListener {
 		
 		this.gameOver = false;
 
-		this.setTitle("Minesweeper");
-		this.setMinimumSize(new Dimension(rows * buttonSize, cols * buttonSize));
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		this.setResizable(false);
+		this.setPreferredSize(new Dimension(rows * buttonSize, cols * buttonSize));
 
 		this.grid = new Square[rows][cols];
 
@@ -86,7 +88,6 @@ public class Board extends JFrame implements MouseListener {
 		this.addMouseListener(this);
 
 		this.setVisible(true);
-		this.pack();
 	}
 
 	/**
@@ -137,7 +138,6 @@ public class Board extends JFrame implements MouseListener {
 			}
 		}
 
-		System.out.println(this);
 		this.reveal(sq);
 	}
 
@@ -410,7 +410,7 @@ public class Board extends JFrame implements MouseListener {
 			}
 
 			// Left click:
-			if (clickType == 1) {
+			if (clickType == 1 && !e.isControlDown()) {
 				if (this.isFirstClick) {
 					this.firstClick(sq);
 				}
@@ -421,7 +421,7 @@ public class Board extends JFrame implements MouseListener {
 			}
 
 			// Right click:
-			else if (clickType == 3) {
+			else if (clickType == 3 || e.isControlDown()) {
 				this.rightClickSquare(sq);
 			}
 		}

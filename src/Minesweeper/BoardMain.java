@@ -1,8 +1,8 @@
-package Minesweeper;
+package minesweeper;
 
 public class BoardMain {
 	
 	public static void main(String[] args) {
-		Board board1 = new Board(9, 9, 10);
+		MinesweeperWindow game = new MinesweeperWindow();
 	}
 }
