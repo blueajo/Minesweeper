@@ -1,6 +1,7 @@
 package minesweeper;
 
-import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -22,10 +23,12 @@ public class Board extends JComponent implements MouseListener {
 
 	private static final long serialVersionUID = 1L;
 	private static final int buttonSize = 75;
+	
+	public OptionBar bar;
 
 	private Square[][] grid;
 	private int rows, cols;
-	private int numMines, numMinesFlagged;
+	private int numMines, numFlagged;
 	private int numSafe, numSafeRevealed;
 	private boolean isFirstClick;
 	private boolean gameOver;
@@ -43,7 +46,7 @@ public class Board extends JComponent implements MouseListener {
 	 * @throws IllegalArgumentException
 	 *             for invalid numbers of mines, rows, and columns
 	 */
-	public Board(int rows, int cols, int numMines) {
+	public Board(int rows, int cols, int numMines, OptionBar bar) {
 
 		if(rows < 3 || cols < 3) {
 			throw new IllegalArgumentException("rows and cols must be at least 3");
@@ -53,12 +56,14 @@ public class Board extends JComponent implements MouseListener {
 			throw new IllegalArgumentException("For a " + rows + "x" + cols +
 					" board, there must be fewer than " + (rows * cols - 9) + "squares");
 		}
+		
+		this.bar = bar;
 
 		this.rows = rows;
 		this.cols = cols;
 		
 		this.numMines = numMines;
-		this.numMinesFlagged = 0;
+		this.numFlagged = 0;
 
 		this.numSafe = (rows * cols) - this.numMines;
 		this.numSafeRevealed = 0;
@@ -84,8 +89,6 @@ public class Board extends JComponent implements MouseListener {
 				current.addMouseListener(this);
 			}
 		}
-
-		this.addMouseListener(this);
 
 		this.setVisible(true);
 	}
@@ -138,7 +141,9 @@ public class Board extends JComponent implements MouseListener {
 			}
 		}
 
+		bar.updateMinesLeft(this.numMines);
 		this.reveal(sq);
+		bar.startTimer();
 	}
 
 	/**
@@ -251,15 +256,16 @@ public class Board extends JComponent implements MouseListener {
 		if (!sq.isRevealed) {
 
 			if (sq.isFlagged) {
-				this.numMinesFlagged--;
+				this.numFlagged--;
 				sq.setText("");
 			} else {
-				this.numMinesFlagged++;
+				this.numFlagged++;
 				sq.setText("F");
 			}
 
 			// Toggle square's flagged status:
 			sq.isFlagged = !sq.isFlagged;
+			bar.updateMinesLeft(this.numMines - this.numFlagged);
 		}
 	}
 
@@ -271,6 +277,8 @@ public class Board extends JComponent implements MouseListener {
 	 */
 	private void endGame(boolean wasGameWon) {
 		if(!this.gameOver) {
+			bar.stopTimer();
+			
 			this.gameOver = true;
 			
 			for (int row = 0; row < this.rows; row++) {
@@ -282,9 +290,10 @@ public class Board extends JComponent implements MouseListener {
 			}
 			
 			if(wasGameWon) {
-				System.out.println("YOU WON!");
+				bar.updateMinesLeft(0);
+				bar.playButton.setText("YOU WIN! PLAY AGAIN?");
 			} else {
-				System.out.println("YOU LOSE");
+				bar.playButton.setText("YOU LOSE. PLAY AGAIN?");
 			}
 		}
 	}
@@ -374,10 +383,16 @@ public class Board extends JComponent implements MouseListener {
 	private boolean isInBounds(int row, int col) {
 		return (row >= 0) && (row < this.rows) && (col >= 0) && (col < this.cols);
 	}
+	
+	public void newGame( ) {
+		
+	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-
+		Component source = (Component) e.getSource();
+        MouseEvent parentEvent = SwingUtilities.convertMouseEvent(source, e, source.getParent());
+        source.getParent().dispatchEvent(parentEvent);
 	}
 
 	@Override
@@ -486,5 +501,4 @@ public class Board extends JComponent implements MouseListener {
 			return (isMine) ? "X" : "O";
 		}
 	}
-
 }
