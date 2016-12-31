@@ -76,16 +76,24 @@ public class Board extends JComponent implements MouseListener {
 
 		this.grid = new Square[rows][cols];
 
-		setLayout(new GridLayout(rows, cols));
-
+		setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		
 		// Initializes the squares within the array.
 		for (int row = 0; row < rows; row++) {
 			for (int col = 0; col < cols; col++) {
 				// Initially, squares are declared not to be mines.
 				Square current = new Square(row, col);
 				this.grid[row][col] = current;
+				
+				current.setMinimumSize(new Dimension(buttonSize, buttonSize));
+				current.setPreferredSize(new Dimension(buttonSize, buttonSize));
+				current.setMaximumSize(new Dimension(buttonSize, buttonSize));
+				
+				c.gridx = row;
+				c.gridy = col;
 
-				add(current);
+				this.add(current, c);
 				current.addMouseListener(this);
 			}
 		}
@@ -291,8 +299,10 @@ public class Board extends JComponent implements MouseListener {
 			
 			if(wasGameWon) {
 				bar.updateMinesLeft(0);
+				bar.playButton.setBackground(Color.GREEN);
 				bar.playButton.setText("YOU WIN! PLAY AGAIN?");
 			} else {
+				bar.playButton.setBackground(Color.RED);
 				bar.playButton.setText("YOU LOSE. PLAY AGAIN?");
 			}
 		}

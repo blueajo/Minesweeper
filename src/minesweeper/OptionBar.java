@@ -12,12 +12,25 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
+/**
+ * This class is an option bar object for a minesweeper game. It contains
+ * 		a timer which goes off when the game starts
+ * 		a mines left indicator
+ * 		a play button that also displays whether a game is won/lost
+ * 		a solve button
+ * 		a toggle for switching the difficulty of the board
+ * 		a toggle for switching on and off flagging mode
+ * 
+ * @author blueajo
+ *
+ */
+
 public class OptionBar extends JComponent implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
 	private JLabel timeLabel;
-	private int timeElapsed;
+	private int minutesElapsed, secondsElapsed;
 	private Timer timerObject;
 	
 	private JLabel minesLeft;
@@ -27,6 +40,9 @@ public class OptionBar extends JComponent implements ActionListener {
 	JLabel difficultyToggle;
 	JLabel flagToggle;
 	
+	/**
+	 * creates an OptionBar object
+	 */
 	public OptionBar() {
 		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 		
@@ -40,48 +56,113 @@ public class OptionBar extends JComponent implements ActionListener {
 		this.setVisible(true);
 	}
 	
-	// timeLabel
+// timeLabel
+	
+	/**
+	 * initializes the time display
+	 */
 	public void initTimeLabel() {
 		this.timeLabel = new JLabel("00:00", SwingConstants.CENTER);
 		this.resetTimeLabel();
 		this.initButton(this.timeLabel);
 	}
 	
+	/**
+	 * resets the time display to 0
+	 */
 	public void resetTimeLabel() {
-		this.timeElapsed = 0;
+		this.secondsElapsed = 0;
+		this.minutesElapsed = 0;
 		this.timerObject = new Timer(1000, this);
-		this.timeLabel.setText("0");
+		this.timeLabel.setText("00:00");
 	}
 	
+	/**
+	 * increments the time elapsed by 1 second every second
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		this.timeElapsed++;
-		timeLabel.setText(String.valueOf(timeElapsed));
+		// clock will stop at 99:01
+		if(this.minutesElapsed >= 99) {
+			this.stopTimer();
+			return;
+		}
+		
+		this.secondsElapsed++;
+		timeLabel.setText(this.displayTime(this.minutesElapsed, this.secondsElapsed));
 	}
 	
+	/**
+	 * formats the time elapsed for the time label
+	 * 
+	 * @param minutes
+	 * 		  minutes elapsed
+	 * @param seconds
+	 * 		  seconds elapsed
+	 * @return
+	 *        the formatted time
+	 */
+	private String displayTime(int minutes, int seconds) {
+		if(seconds > 59) {
+			minutes += seconds / 60;
+			seconds = seconds % 60;
+		}
+		String time = "";
+		if (minutes < 10) {
+			time += "0";
+		}
+		time += String.valueOf(minutes) + ":";
+		if(seconds < 10) {
+			time += "0";
+		}
+		time += seconds;
+		return time;
+		
+	}
+	
+	/**
+	 * starts the timer
+	 */
 	public void startTimer() {
 		if(!this.timerObject.isRunning()) {
 			this.timerObject.start();
 		}
 	}
 	
+	/**
+	 * stops the timer
+	 */
 	public void stopTimer() {
 		if(this.timerObject.isRunning()) {
 			this.timerObject.stop();
 		}
 	}
 	
-	// minesLeft
+// minesLeft
+	
+	/**
+	 * initializes the mines left display
+	 */
 	public void initMinesLeft() {
 		this.minesLeft = new JLabel("0", SwingConstants.CENTER);
 		this.initButton(this.minesLeft);
 	}
 	
+	/**
+	 * updates mines left to mines
+	 * 
+	 * @param mines
+	 * 		  number of mines left
+	 */
 	public void updateMinesLeft(int mines) {
 		this.minesLeft.setText(String.valueOf(mines));
 	}
 	
-	// playButton
+// playButton
+	
+	/**
+	 * initializes the play button
+	 */
 	public void initPlayButton() {
 		this.playButton = new JLabel("PLAY", SwingConstants.CENTER);
 		this.playButton.setPreferredSize(new Dimension(100, 40));
@@ -92,25 +173,43 @@ public class OptionBar extends JComponent implements ActionListener {
 		this.add(this.playButton);
 	}
 
-	// solveButton
+// solveButton
+	
+	/**
+	 * initializes the solve button
+	 */
 	public void initSolveButton() {
 		this.solveButton = new JLabel("SOLVE", SwingConstants.CENTER);
 		this.initButton(this.solveButton);
 	}
 	
-	// difficultyToggle
+// difficultyToggle
+	
+	/**
+	 * initializes the difficulty toggle
+	 */
 	public void initDifficultyToggle() {
 		this.difficultyToggle = new JLabel("MEDIUM", SwingConstants.CENTER);
 		this.initButton(this.difficultyToggle);
 	}
 	
-	// flagToggle
+// flagToggle
+	
+	/**
+	 * initializes the flag toggle
+	 */
 	public void initFlagToggle() {
 		this.flagToggle = new JLabel("MODE", SwingConstants.CENTER);
 		this.initButton(this.flagToggle);
 	}
 	
-	// general
+// general
+	
+	/**
+	 * common initialization for the buttons
+	 * @param button
+	 * 		  the button to be initialized
+	 */
 	public void initButton(JLabel button) {
 		button.setPreferredSize(new Dimension(100, 40));
 		button.setMaximumSize(new Dimension(100, 40));
